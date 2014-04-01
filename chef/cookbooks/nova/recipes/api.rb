@@ -19,6 +19,12 @@
 
 include_recipe "nova::config"
 
+directory "/var/cache/nova" do
+  user node[:nova][:user]
+  group node[:nova][:group]
+  action :create
+end
+
 nova_path = "/opt/nova"
 venv_path = node[:nova][:use_virtualenv] ? "#{nova_path}/.venv" : nil
 
