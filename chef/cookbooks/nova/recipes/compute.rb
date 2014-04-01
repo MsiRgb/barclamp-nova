@@ -249,10 +249,18 @@ if ::File.exist?("#{node[:nova][:home_dir]}/.ssh/id_rsa.pub") and !::File.exist?
   end
 end
 
-execute "Create Nova SSH key" do
-  command "su #{node[:nova][:user]} -c \"ssh-keygen -q -t rsa  -P '' -f '#{node[:nova][:home_dir]}/.ssh/id_rsa'\""
-  creates "#{node[:nova][:home_dir]}/.ssh/id_rsa.pub"
+# Make .ssh directory
+directory "/var/lib/nova/.ssh" do
+  owner node[:nova][:user]
+  group node[:nova][:group]
+  action :create
   only_if { ::File.exist?(node[:nova][:home_dir]) }
+end
+
+execute "Create Nova SSH key" do
+  user node[:nova][:user]
+  command "ssh-keygen -q -t rsa  -P '' -f '#{node[:nova][:home_dir]}/.ssh/id_rsa'"
+  creates "#{node[:nova][:home_dir]}/.ssh/id_rsa.pub"
 end
 
 ruby_block "nova_read_ssh_public_key" do
